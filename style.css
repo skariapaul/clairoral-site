@@ -115,6 +115,12 @@ section.cat > p.sub { color: var(--muted); margin: .35rem 0 0 .95rem; font-size:
   padding: .5rem .9rem; font-weight: 700; font-size: .9rem;
 }
 
+.feature {
+  margin-top: 1.4rem; display: grid; gap: 1.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.feature img { width: 100%; border-radius: var(--radius); border: 1px solid #eee; display: block; }
+
 .banner {
   margin-top: 3rem; border-radius: var(--radius);
   background: var(--purple-light); padding: 1.6rem 1.8rem;
@@ -144,5 +150,6 @@ footer.site .fine { max-width: 1080px; margin: 2rem auto 0; font-size: .78rem; c
   .btn.outline { border-color: #9d85e0; color: #cbb8f5; }
   .card { border-color: #2a2438; }
   .card .ph { background: #17131f; }
+  .feature img { border-color: #2a2438; }
   .banner strong { color: #d9ccff; }
 }
