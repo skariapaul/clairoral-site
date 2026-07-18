@@ -8,11 +8,8 @@
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="stylesheet" href="../style.css">
 
-<!-- ═══════════════════════════════════════════════════════════════
-     WEB ANALYTICS — paste your Cloudflare Web Analytics token below,
-     then uncomment the line. Must match the snippet on the other pages.
-     ═══════════════════════════════════════════════════════════════ -->
-<!-- <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "PASTE_TOKEN_HERE"}'></script> -->
+<!-- Cloudflare Web Analytics (cookie-free) — same token on / and sg/ -->
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "0cd597626e144c0b8d7d5eea46ce97aa"}' id="cf-beacon"></script>
 </head>
 <body>
 
@@ -50,13 +47,25 @@
 
   document.getElementById('fallback').href = dest;
 
-  // If an analytics beacon is present, give it a moment to record this
-  // page hit before we navigate away. With no analytics installed the
-  // redirect is instant, so there's no wasted delay.
-  var hasAnalytics = !!document.querySelector('script[data-cf-beacon], script[src*="googletagmanager"], script[src*="plausible"]');
-  window.setTimeout(function () {
+  // Wait for the analytics beacon to actually load before navigating away,
+  // so the click is never lost on a slow connection. Capped so a blocked or
+  // failed beacon can't strand the visitor; instant if no analytics present.
+  var beacon = document.getElementById('cf-beacon');
+  var done = false;
+  function go() {
+    if (done) return;
+    done = true;
     window.location.replace(dest);
-  }, hasAnalytics ? 300 : 0);
+  }
+
+  if (!beacon) {
+    go();
+  } else {
+    // beacon fires its hit on load; small buffer lets the request leave
+    beacon.addEventListener('load', function () { window.setTimeout(go, 150); });
+    beacon.addEventListener('error', go);
+    window.setTimeout(go, 1500); // hard cap
+  }
 })();
 </script>
 
