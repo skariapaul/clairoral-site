@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Opening Carousell… — Clair Oral Care</title>
+<title>Opening store… — Clair Oral Care</title>
 <meta name="robots" content="noindex">
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 <link rel="stylesheet" href="../style.css">
@@ -15,15 +15,17 @@
 
 <div class="hero">
   <img class="hero-logo" src="../images/logo-oralcare.png" alt="Clair Oral Care">
-  <p class="tag">Taking you to our Carousell store…</p>
+  <p class="tag">Taking you to our store…</p>
   <div class="actions">
-    <a class="btn primary" id="fallback" href="https://www.carousell.sg/u/clair.oral" target="_self" rel="noopener">Continue to Carousell →</a>
+    <a class="btn primary" id="fallback" href="https://www.carousell.sg/u/clair.oral" target="_self" rel="noopener">Continue →</a>
   </div>
 </div>
 
 <script>
 (function () {
-  // Product key → Carousell listing. Keys are what appear in your analytics
+  var NOON = 'https://www.noon.com/uae-en/clair/';
+
+  // Product key → destination. Keys are what appear in your analytics
   // "top pages" report, so each one tells you which button was clicked.
   var LINKS = {
     'sonic-toothbrush':   'https://www.carousell.sg/p/clair-sonic-toothbrush-cr409-1450063285/',
@@ -39,7 +41,24 @@
     'bundle-from-strips': 'https://www.carousell.sg/p/clair-whitening-kit-v34-purple-serum-pap-strips-bundle-1450284432/',
     'profile-nav':        'https://www.carousell.sg/u/clair.oral',
     'profile-hero':       'https://www.carousell.sg/u/clair.oral',
-    'profile-banner':     'https://www.carousell.sg/u/clair.oral'
+    'profile-banner':     'https://www.carousell.sg/u/clair.oral',
+
+    // UAE — noon brand store. Per-product keys all resolve to the same
+    // store page (noon deep links unverified), but tell us which product
+    // image drives UAE interest.
+    'noon-nav':               NOON,
+    'noon-hero':              NOON,
+    'noon-banner':            NOON,
+    'noon-serum':             NOON,
+    'noon-strips':            NOON,
+    'noon-toothpaste-enamel': NOON,
+    'noon-toothpaste-f':      NOON,
+    'noon-sonic':             NOON,
+    'noon-flosser':           NOON,
+    'noon-tongue-copper':     NOON,
+    'noon-tongue-steel':      NOON,
+    'noon-flossmate':         NOON,
+    'noon-ortho':             NOON
   };
 
   var key = new URLSearchParams(window.location.search).get('p') || '';
