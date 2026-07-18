@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Opening Carousell… — Clair Oral Care</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<link rel="stylesheet" href="../style.css">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     WEB ANALYTICS — paste your Cloudflare Web Analytics token below,
+     then uncomment the line. Must match the snippet on the other pages.
+     ═══════════════════════════════════════════════════════════════ -->
+<!-- <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "PASTE_TOKEN_HERE"}'></script> -->
+</head>
+<body>
+
+<div class="hero">
+  <img class="hero-logo" src="../images/logo-oralcare.png" alt="Clair Oral Care">
+  <p class="tag">Taking you to our Carousell store…</p>
+  <div class="actions">
+    <a class="btn primary" id="fallback" href="https://www.carousell.sg/u/clair.oral" target="_self" rel="noopener">Continue to Carousell →</a>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Product key → Carousell listing. Keys are what appear in your analytics
+  // "top pages" report, so each one tells you which button was clicked.
+  var LINKS = {
+    'sonic-toothbrush':   'https://www.carousell.sg/p/clair-sonic-toothbrush-cr409-1450063285/',
+    'water-flosser':      'https://www.carousell.sg/p/clair-cordless-water-flosser-cr503-1450064841/',
+    'tongue-steel':       'https://www.carousell.sg/p/clair-stainless-steel-tongue-cleaner-cr210-1450065735/',
+    'tongue-copper':      'https://www.carousell.sg/p/clair-pure-copper-tongue-cleaner-cr220-1450066524/',
+    'flossmate':          'https://www.carousell.sg/p/clair-flossmate-floss-pick-pouch-50s-cr090-1450067057/',
+    'durafloss':          'https://www.carousell.sg/p/clair-durafloss-25s-box-cr228-1450069144/',
+    'ortho-set':          'https://www.carousell.sg/p/clair-orthodontic-toothbrush-set-2pcs-cr124-1450070147/',
+    'toothpaste-enamel':  'https://www.carousell.sg/p/sensiclair-enamel-care-whitening-toothpaste-60g-pump-dispenser-1450322639/',
+    'toothpaste-f':       'https://www.carousell.sg/p/sensiclair-f-fluoride-toothpaste-60g-icy-peach-pump-dispenser-1450322836/',
+    'bundle-from-serum':  'https://www.carousell.sg/p/clair-whitening-kit-v34-purple-serum-pap-strips-bundle-1450284432/',
+    'bundle-from-strips': 'https://www.carousell.sg/p/clair-whitening-kit-v34-purple-serum-pap-strips-bundle-1450284432/',
+    'profile-nav':        'https://www.carousell.sg/u/clair.oral',
+    'profile-hero':       'https://www.carousell.sg/u/clair.oral',
+    'profile-banner':     'https://www.carousell.sg/u/clair.oral'
+  };
+
+  var key = new URLSearchParams(window.location.search).get('p') || '';
+  var dest = LINKS[key] || 'https://www.carousell.sg/u/clair.oral';
+
+  document.getElementById('fallback').href = dest;
+
+  // If an analytics beacon is present, give it a moment to record this
+  // page hit before we navigate away. With no analytics installed the
+  // redirect is instant, so there's no wasted delay.
+  var hasAnalytics = !!document.querySelector('script[data-cf-beacon], script[src*="googletagmanager"], script[src*="plausible"]');
+  window.setTimeout(function () {
+    window.location.replace(dest);
+  }, hasAnalytics ? 300 : 0);
+})();
+</script>
+
+</body>
+</html>
