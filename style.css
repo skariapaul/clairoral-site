@@ -52,6 +52,15 @@ header.site {
 }
 .nav .cta:hover { background: var(--purple-dark); text-decoration: none; }
 
+.promo-bar {
+  display: block; text-align: center; text-decoration: none;
+  background: linear-gradient(135deg, var(--purple-dark), var(--purple) 70%, #7c5fd0);
+  color: #fff; font-weight: 700; font-size: 1rem;
+  padding: .8rem 1rem; letter-spacing: .01em;
+}
+.promo-bar:hover { text-decoration: none; filter: brightness(1.08); }
+.promo-bar .em { background: #fff; color: var(--purple-dark); border-radius: 999px; padding: .1rem .6rem; margin: 0 .3rem; }
+
 .hero {
   background: linear-gradient(160deg, #ffffff, #ede8f9);
   color: var(--ink); text-align: center; padding: 4.2rem 1.25rem 3.8rem;
