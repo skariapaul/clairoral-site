@@ -205,3 +205,17 @@ footer.site .fine { max-width: 1080px; margin: 2rem auto 0; font-size: .78rem; c
   .b2b-inner { grid-template-columns: repeat(2, 1fr); gap: 1.4rem; }
   .why-grid { grid-template-columns: 1fr; }
 }
+
+/* ---------- Campaign graphics gallery ---------- */
+.gallery {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1rem; margin-top: 1.4rem;
+}
+.shot {
+  display: block; border-radius: var(--radius); overflow: hidden;
+  border: 1px solid #eee; background: #fff;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.shot img { width: 100%; height: auto; display: block; }
+.shot:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(63,43,120,.16); }
+@media (prefers-color-scheme: dark) { .shot { border-color: #2a2438; background: #17131f; } }
