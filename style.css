@@ -8,6 +8,13 @@
   --bg: #ffffff;
   --card: #faf9fd;
   --radius: 14px;
+
+  /* Serenity (Device, Rian Hughes) is the Clair brand face. It is licence-only —
+     not self-hostable without files — so it renders for anyone who has it
+     installed, and Jost (a geometric sans in the same Futura lineage) carries
+     everyone else until an Adobe Fonts web project is wired up. */
+  --display: "Serenity", "Jost", "Futura", "Century Gothic", system-ui, sans-serif;
+  --body: "Lato", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -20,11 +27,13 @@
 }
 
 body {
-  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  font-family: var(--body);
   color: var(--ink);
   background: var(--bg);
   line-height: 1.6;
 }
+
+h1, h2, h3, h4 { font-family: var(--display); }
 
 a { color: var(--purple); text-decoration: none; }
 a:hover { text-decoration: underline; }
