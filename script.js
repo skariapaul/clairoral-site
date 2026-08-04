@@ -74,6 +74,15 @@
     var idx = 0;
     imgs[0].classList.add('is-active');
 
+    // Cards that cover several models label each shot with its model number
+    var caps = imgs.map(function (im) { return im.getAttribute('data-label') || ''; });
+    var cap = null;
+    if (caps.some(Boolean)) {
+      cap = document.createElement('div');
+      cap.className = 'pcar-cap';
+      pc.appendChild(cap);
+    }
+
     var prev = ctrl('button', 'pcar-btn pcar-prev', '‹', 'Previous image');
     var next = ctrl('button', 'pcar-btn pcar-next', '›', 'Next image');
     var zoom = ctrl('button', 'pcar-zoom', '', 'Zoom in');
@@ -95,7 +104,12 @@
       idx = (i + imgs.length) % imgs.length;
       imgs.forEach(function (im, j) { im.classList.toggle('is-active', j === idx); });
       dots.querySelectorAll('.pcar-dot').forEach(function (d, j) { d.classList.toggle('is-active', j === idx); });
+      if (cap) {
+        cap.textContent = caps[idx];
+        cap.style.display = caps[idx] ? '' : 'none';
+      }
     }
+    show(0); // sync the caption with the shot that starts active
     function openLB(e) {
       e.stopPropagation();
       lightbox.open(imgs.map(function (im) { return im.src; }),

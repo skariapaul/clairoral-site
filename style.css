@@ -111,6 +111,18 @@ section.cat > p.sub { color: var(--muted); margin: .35rem 0 0 .95rem; font-size:
   transition: box-shadow .15s ease;
 }
 .card:hover { box-shadow: 0 6px 22px rgba(63,43,120,.12); }
+/* A card covering a whole range carries more copy than a single-SKU card, and
+   sits alone in its section — two columns with the shots beside the text keeps
+   the row from looking half-empty. */
+.card.wide { grid-column: span 2; }
+@media (min-width: 640px) {
+  .card.wide { flex-direction: row; }
+  .card.wide .pcar {
+    flex: 0 0 44%; aspect-ratio: 1 / 1;
+    border-radius: var(--radius) 0 0 var(--radius);
+  }
+  .card.wide .body { flex: 1; align-self: center; }
+}
 .card .ph {
   aspect-ratio: 1 / 1; overflow: hidden; background: #fff;
   display: flex; align-items: center; justify-content: center;
@@ -263,12 +275,23 @@ footer.site .fine { max-width: 1080px; margin: 2rem auto 0; font-size: .78rem; c
 }
 .card:hover .pcar-zoom, .pcar:focus-within .pcar-zoom { opacity: 1; }
 .pcar-zoom:hover { background-color: #fff; }
+/* model number for the shot on screen, on cards that cover a whole range */
+.pcar-cap {
+  position: absolute; left: 8px; bottom: 6px; z-index: 3;
+  max-width: calc(100% - 16px);
+  background: rgba(255,255,255,.92); color: var(--purple-dark);
+  font-size: .68rem; font-weight: 700; letter-spacing: .03em;
+  padding: .2rem .5rem; border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .pcar-dots { position: absolute; bottom: 8px; left: 0; right: 0; z-index: 3; display: flex; justify-content: center; gap: 6px; }
 .pcar-dot { width: 7px; height: 7px; border-radius: 50%; background: rgba(63,43,120,.28); cursor: pointer; transition: background .15s; }
 .pcar-dot.is-active { background: var(--purple); }
 @media (prefers-color-scheme: dark) {
   .pcar, .pcar-img { background: #17131f; }
   .pcar-btn, .pcar-zoom { background-color: rgba(40,33,64,.92); }
+  .pcar-cap { background: rgba(40,33,64,.92); color: #d9ccff; }
 }
 
 /* ---------- Zoom lightbox ---------- */
