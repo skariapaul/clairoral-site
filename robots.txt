@@ -1,7 +1,4 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
-
-# Click-tracking redirector — no value to index
-Disallow: /go/
 
 Sitemap: https://clairoral.com/sitemap.xml

@@ -3,101 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Opening store… — Clair Oral Care</title>
-<meta name="robots" content="noindex">
-<link rel="icon" type="image/svg+xml" href="../favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../style.css">
-
-<!-- Cloudflare Web Analytics (cookie-free) — same token on / and sg/ -->
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "0cd597626e144c0b8d7d5eea46ce97aa"}' id="cf-beacon"></script>
+<title>Moved &mdash; Clair Oral Care</title>
+<!-- The /go short link to the Carousell store was retired on 2026-08-13. The URL is kept alive so inbound links,
+     printed codes and search results land somewhere useful instead of a 404.
+     noindex plus a canonical tells search engines to drop it and keep the home
+     page. On Cloudflare Pages this becomes a real 301 in _redirects. -->
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://clairoral.com/">
+<meta http-equiv="refresh" content="0; url=/">
+<style>
+  body { background:#e8f3f6; color:#26474b; font:15px/1.6 system-ui, sans-serif;
+         display:grid; place-items:center; min-height:100vh; margin:0; padding:24px; text-align:center }
+  a { color:#0b6e7a }
+</style>
 </head>
 <body>
-
-<div class="hero">
-  <img class="hero-logo" src="../images/logo-oralcare.png" alt="Clair Oral Care">
-  <p class="tag">Taking you to our store…</p>
-  <div class="actions">
-    <a class="btn primary" id="fallback" href="https://www.carousell.sg/u/clair.oral" target="_self" rel="noopener">Continue →</a>
-  </div>
-</div>
-
-<script>
-(function () {
-  var NOON = 'https://www.noon.com/uae-en/clair/';
-
-  // Product key → destination. Keys are what appear in your analytics
-  // "top pages" report, so each one tells you which button was clicked.
-  var LINKS = {
-    'sonic-toothbrush':   'https://www.carousell.sg/p/clair-sonic-toothbrush-cr409-1450063285/',
-    'water-flosser':      'https://www.carousell.sg/p/clair-cordless-water-flosser-cr503-1450064841/',
-    'tongue-steel':       'https://www.carousell.sg/p/clair-stainless-steel-tongue-cleaner-cr210-1450065735/',
-    'tongue-copper':      'https://www.carousell.sg/p/clair-pure-copper-tongue-cleaner-cr220-1450066524/',
-    'flossmate':          'https://www.carousell.sg/p/clair-flossmate-floss-pick-pouch-50s-cr090-1450067057/',
-    'durafloss':          'https://www.carousell.sg/p/clair-durafloss-25s-box-cr228-1450069144/',
-    'ortho-set':          'https://www.carousell.sg/p/clair-orthodontic-toothbrush-set-2pcs-cr124-1450070147/',
-    'toothpaste-enamel':  'https://www.carousell.sg/p/sensiclair-enamel-care-whitening-toothpaste-60g-pump-dispenser-1450322639/',
-    'toothpaste-f':       'https://www.carousell.sg/p/sensiclair-f-fluoride-toothpaste-60g-icy-peach-pump-dispenser-1450322836/',
-    'bundle-from-serum':  'https://www.carousell.sg/p/clair-whitening-kit-v34-purple-serum-pap-strips-bundle-1450284432/',
-    'bundle-from-strips': 'https://www.carousell.sg/p/clair-whitening-kit-v34-purple-serum-pap-strips-bundle-1450284432/',
-    'profile-nav':        'https://www.carousell.sg/u/clair.oral',
-    'profile-hero':       'https://www.carousell.sg/u/clair.oral',
-    'profile-banner':     'https://www.carousell.sg/u/clair.oral',
-
-    // TikTok (@clair.sg) — measure how many taps reach us.
-    // 'tiktok' is the bio link: lands on the warm /sg page (product info +
-    // DM CTA + Carousell buttons). 'tiktok-shop' skips straight to the
-    // Carousell storefront for a pinned "shop now" comment link.
-    // Both show up as ?p=tiktok… in the Cloudflare "top pages" report.
-    'tiktok':             'https://clairoral.com/sg/',
-    'tiktok-shop':        'https://www.carousell.sg/u/clair.oral',
-
-    // UAE — noon brand store. Per-product keys all resolve to the same
-    // store page (noon deep links unverified), but tell us which product
-    // image drives UAE interest.
-    'noon-nav':               NOON,
-    'noon-hero':              NOON,
-    'noon-banner':            NOON,
-    'noon-serum':             NOON,
-    'noon-strips':            NOON,
-    'noon-toothpaste-enamel': NOON,
-    'noon-toothpaste-f':      NOON,
-    'noon-sonic':             NOON,
-    'noon-flosser':           NOON,
-    'noon-tongue-copper':     NOON,
-    'noon-tongue-steel':      NOON,
-    'noon-flossmate':         NOON,
-    'noon-ortho':             NOON
-  };
-
-  var key = new URLSearchParams(window.location.search).get('p') || '';
-  var dest = LINKS[key] || 'https://www.carousell.sg/u/clair.oral';
-
-  document.getElementById('fallback').href = dest;
-
-  // Wait for the analytics beacon to actually load before navigating away,
-  // so the click is never lost on a slow connection. Capped so a blocked or
-  // failed beacon can't strand the visitor; instant if no analytics present.
-  var beacon = document.getElementById('cf-beacon');
-  var done = false;
-  function go() {
-    if (done) return;
-    done = true;
-    window.location.replace(dest);
-  }
-
-  if (!beacon) {
-    go();
-  } else {
-    // beacon fires its hit on load; small buffer lets the request leave
-    beacon.addEventListener('load', function () { window.setTimeout(go, 150); });
-    beacon.addEventListener('error', go);
-    window.setTimeout(go, 1500); // hard cap
-  }
-})();
-</script>
-
+<p>This page has moved.<br><a href="/">Continue to Clair Oral Care</a></p>
+<script>location.replace('/');</script>
 </body>
 </html>
