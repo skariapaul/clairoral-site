@@ -4,11 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Moved &mdash; Clair Oral Care</title>
-<!-- The Singapore landing page was retired on 2026-08-13. The URL is kept alive so inbound links,
+<!-- The Singapore landing page was retired on 2026-08-13. The URL stays alive so inbound links,
      printed codes and search results land somewhere useful instead of a 404.
-     noindex plus a canonical tells search engines to drop it and keep the home
-     page. On Cloudflare Pages this becomes a real 301 in _redirects. -->
-<meta name="robots" content="noindex, follow">
+     A zero-delay refresh plus a canonical is how you spell a 301 on a host
+     that cannot send one, and Google treats it as a permanent redirect,
+     consolidating this URL into the home page.
+
+     There is deliberately no noindex. It was here at first, and it fought the
+     canonical: one says drop this page, the other says fold it into the home
+     page. Google warns against pairing them, and the risk runs the wrong way -
+     the noindex can carry across to the canonical target, which is the home
+     page. Let the redirect do the work. -->
 <link rel="canonical" href="https://clairoral.com/">
 <meta http-equiv="refresh" content="0; url=/">
 <style>
