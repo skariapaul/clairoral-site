@@ -81,6 +81,13 @@
       return tab.textContent.replace(span ? span.textContent : '', '').trim();
     };
 
+    // The filter strip scrolls sideways on a phone - 892px of tabs in a 390px
+    // window - so an active filter set from the URL can sit off-screen with no
+    // sign the page is filtered at all. Bring it into view.
+    var revealTab = function (tab) {
+      if (tab.scrollIntoView) tab.scrollIntoView({ block: 'nearest', inline: 'center' });
+    };
+
     tabs.forEach(function (tab) {
       tab.addEventListener('click', function () {
         apply(tab.dataset.filter, labelOf(tab));
@@ -93,7 +100,16 @@
       var wanted = location.hash.replace('#', '');
       if (!wanted) return;
       var tab = tabs.filter(function (t) { return t.dataset.filter === wanted; })[0];
-      if (tab) apply(tab.dataset.filter, labelOf(tab));
+      if (tab) { apply(tab.dataset.filter, labelOf(tab)); revealTab(tab); return; }
+
+      // The nav ribbon also links to single products (range.html#cr310). A card
+      // the current filter has hidden cannot be scrolled to, so clear the filter
+      // and go to it ourselves - the browser already gave up on a hidden target.
+      var card = document.getElementById(wanted);
+      if (card && card.classList.contains('product-card')) {
+        apply('all', 'All products');
+        card.scrollIntoView();
+      }
     };
     applyHash();
     addEventListener('hashchange', applyHash);
@@ -147,4 +163,245 @@
   addEventListener('load', function () {
     reveals.forEach(function (el) { if (inView(el)) reveal(el); });
   });
+
+  /* --- Product zoom -------------------------------------------------------
+     Each card's arrow is a link to its own image file, so with this script
+     absent the browser just opens the picture. Here we intercept it and show
+     the image over the page instead.
+     ------------------------------------------------------------------------ */
+  var zoom = document.getElementById('zoom');
+
+  if (zoom) {
+    var zoomImg = zoom.querySelector('[data-zoom-image]');
+    var zoomCap = zoom.querySelector('[data-zoom-caption]');
+    var zoomThumbs = zoom.querySelector('[data-zoom-thumbs]');
+    var zoomClose = zoom.querySelector('.zoom-close');
+    var zoomOpener = null;
+    var shots = [];
+    var at = 0;
+
+    var showShot = function (i) {
+      at = (i + shots.length) % shots.length;
+      zoomImg.src = shots[at];
+      Array.prototype.forEach.call(zoomThumbs.children, function (b, n) {
+        b.classList.toggle('is-current', n === at);
+        b.setAttribute('aria-current', n === at ? 'true' : 'false');
+      });
+    };
+
+    var closeZoom = function () {
+      zoom.hidden = true;
+      zoomImg.removeAttribute('src');
+      document.body.style.overflow = '';
+      if (zoomOpener) zoomOpener.focus();
+    };
+
+    document.addEventListener('click', function (e) {
+      var trigger = e.target.closest('[data-zoom]');
+      if (!trigger) return;
+      e.preventDefault();
+      zoomOpener = trigger;
+
+      // The card's own picture first, then any others listed for this product.
+      var more = (trigger.getAttribute('data-zoom-more') || '')
+        .split('|').filter(function (v) { return v; });
+      shots = [trigger.getAttribute('href')].concat(more);
+
+      zoomImg.alt = trigger.getAttribute('data-zoom-alt') || '';
+      // The label reads "View <product> larger"; the product is the middle of it.
+      zoomCap.textContent = (trigger.getAttribute('aria-label') || '')
+        .replace(/^View\s+/, '').replace(/\s+larger$/, '');
+
+      // One picture needs no picker.
+      zoomThumbs.innerHTML = '';
+      zoomThumbs.hidden = shots.length < 2;
+      if (shots.length > 1) {
+        shots.forEach(function (src, n) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'zoom-thumb';
+          b.setAttribute('aria-label', 'Picture ' + (n + 1) + ' of ' + shots.length);
+          b.innerHTML = '<img src="' + src + '" alt="">';
+          b.addEventListener('click', function () { showShot(n); });
+          zoomThumbs.appendChild(b);
+        });
+      }
+
+      showShot(0);
+      zoom.hidden = false;
+      document.body.style.overflow = 'hidden';
+      zoomClose.focus();
+    });
+
+    zoom.addEventListener('click', function (e) {
+      // Only a hit on the backdrop itself, or the close button, dismisses it -
+      // clicks on the picture bubble up from a descendant.
+      if (e.target === zoom || e.target.closest('.zoom-close')) closeZoom();
+    });
+
+    addEventListener('keydown', function (e) {
+      if (zoom.hidden) return;
+      if (e.key === 'Escape') { closeZoom(); return; }
+      if (shots.length < 2) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); showShot(at + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); showShot(at - 1); }
+    });
+  }
+
+  /* --- Enquiry modal ------------------------------------------------------
+     The form posts to Formspree, which forwards it to whichever inbox the form
+     is pointed at in their dashboard. The id below is the tail of the endpoint
+     and is public by design - it ships in the source of every Formspree site.
+     Change where mail lands in the dashboard, not here.
+
+     If the post fails, the form falls back to composing the message in the
+     visitor's own mail client, so nothing typed is lost. Every trigger also
+     keeps its own mailto: href, so with this file absent the links still reach
+     mail@pharmascient.com - just without the fields.
+     ------------------------------------------------------------------------ */
+  var FORMSPREE_ID = 'xbgrojql';
+  var canPost = FORMSPREE_ID !== 'PASTE_FORM_ID' && FORMSPREE_ID !== '';
+
+  var modal = document.getElementById('enquiry');
+  var triggers = Array.prototype.slice.call(document.querySelectorAll('[data-enquiry]'));
+
+  if (modal && triggers.length) {
+    var form = modal.querySelector('.enquiry-form');
+    var panel = modal.querySelector('[data-enquiry-form]');
+    var success = modal.querySelector('[data-enquiry-success]');
+    var errorNote = modal.querySelector('[data-form-error]');
+    var topic = form.elements.topic;
+    var lastFocused = null;
+
+    var openModal = function (preset, product) {
+      lastFocused = document.activeElement;
+      panel.hidden = false;
+      success.hidden = true;
+      errorNote.hidden = true;
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+      if (preset) {
+        Array.prototype.forEach.call(topic.options, function (o, i) {
+          if (o.text === preset) topic.selectedIndex = i;
+        });
+      }
+      // Opened from a product page, the form should already know which product.
+      if (product) form.elements.query.value = 'About the ' + product + ': ';
+      form.elements.name.focus();
+    };
+
+    var closeModal = function () {
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      if (lastFocused) lastFocused.focus();
+    };
+
+    triggers.forEach(function (t) {
+      t.addEventListener('click', function (e) {
+        e.preventDefault();
+        openModal(t.dataset.enquiry, t.dataset.enquiryProduct);
+      });
+    });
+
+    modal.addEventListener('click', function (e) {
+      // The backdrop is the modal element itself; clicks inside the panel bubble
+      // up from a descendant, so only a direct hit should close it.
+      if (e.target === modal || e.target.closest('.modal-close, [data-enquiry-close]')) closeModal();
+    });
+
+    addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !modal.hidden) closeModal();
+    });
+
+    // Keep tabbing inside the dialog while it is open.
+    modal.addEventListener('keydown', function (e) {
+      if (e.key !== 'Tab') return;
+      var focusable = modal.querySelectorAll('button, input, select, textarea, a[href]');
+      var visible = Array.prototype.filter.call(focusable, function (el) {
+        return el.offsetParent !== null;
+      });
+      if (!visible.length) return;
+      var first = visible[0], last = visible[visible.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+
+    var showSuccess = function (eyebrow, title, copy) {
+      success.querySelector('[data-success-eyebrow]').textContent = eyebrow;
+      success.querySelector('[data-success-title]').innerHTML = title;
+      success.querySelector('[data-success-copy]').textContent = copy;
+      panel.hidden = true;
+      success.hidden = false;
+      form.reset();
+    };
+
+    // Fallback for a missing form id or a failed post: hand the filled-in
+    // message to the visitor's own mail client instead of losing it.
+    var handToMailClient = function (f) {
+      var body = [
+        'Name: ' + f.name.value.trim(),
+        'Email: ' + f.email.value.trim(),
+        'Phone: ' + (f.phone.value.trim() || '—'),
+        'Enquiry type: ' + topic.value,
+        '',
+        f.query.value.trim(),
+        '',
+        '— sent from clairoral.com'
+      ].join('\r\n');
+
+      location.href = 'mailto:mail@pharmascient.com'
+        + '?subject=' + encodeURIComponent('Clair Oral Care — ' + topic.value)
+        + '&body=' + encodeURIComponent(body);
+
+      showSuccess(
+        'Over to your mail app',
+        'Nearly<br><em>there.</em>',
+        'Your message is waiting in a new email, filled in and addressed. Press send there and it reaches us.'
+      );
+    };
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = form.elements;
+      var submit = form.querySelector('.form-submit');
+
+      if (!f.name.value.trim() || !f.email.value.trim() || !f.query.value.trim()) {
+        errorNote.textContent = 'Please fill in your name, email and question.';
+        errorNote.hidden = false;
+        (!f.name.value.trim() ? f.name
+          : !f.email.value.trim() ? f.email : f.query).focus();
+        return;
+      }
+      errorNote.hidden = true;
+
+      if (!canPost || typeof fetch !== 'function') { handToMailClient(f); return; }
+
+      var payload = new FormData(form);
+      payload.append('_subject', 'Clair Oral Care — ' + topic.value);
+
+      submit.disabled = true;
+      var label = submit.firstChild;
+      var wording = label.nodeValue;
+      label.nodeValue = 'Sending… ';
+
+      fetch('https://formspree.io/f/' + FORMSPREE_ID, {
+        method: 'POST',
+        body: payload,
+        headers: { Accept: 'application/json' }
+      }).then(function (res) {
+        if (!res.ok) throw new Error('Formspree replied ' + res.status);
+        showSuccess(
+          'Message sent',
+          'Thank<br><em>you.</em>',
+          'Thank you for your enquiry. We will get back to you shortly at the address you gave.'
+        );
+      }).catch(function () {
+        // The details are still in the fields, so nothing typed is lost.
+        handToMailClient(f);
+      }).then(function () {
+        submit.disabled = false;
+        label.nodeValue = wording;
+      });
+    });
+  }
 })();

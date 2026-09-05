@@ -225,8 +225,9 @@ html.js .reveal-4 { transition-delay: .39s; }
 .button, .header-cta, .skip-link { text-decoration: none; }
 /* The mobile "Get in touch" link is forced visible with !important, so on
    desktop it sat next to the "Partner with us" button saying the same thing.
-   It belongs to the mobile nav only. */
-@media (min-width: 901px) {
+   It belongs to the mobile nav, which starts at 680 - not at 900, where this
+   rule used to draw the line and left the link showing on tablets. */
+@media (min-width: 681px) {
   .nav-mobile-cta { display: none !important; }
 }
 /* Footer link columns shrink-wrap to their content, so a label plus its
@@ -499,10 +500,15 @@ html.js .reveal-4 { transition-delay: .39s; }
 }
 /* --- Brand mark ------------------------------------------------------------
    Larger than the recovered design's 137px; the header has the room and the
-   wordmark was reading small against the nav. */
-.brand-mark img { width: 176px; }
+   wordmark was reading small against the nav.
+
+   Both lockup PNGs shipped with 11.3% transparent padding on each side, which
+   held the mark ~20px right of the margin its box sat on. They are cropped to
+   the artwork now, so these widths are the old ones times 467/603 - the mark is
+   the size it always was, and its left edge is where the box's left edge is. */
+.brand-mark img { width: 136px; }
 @media (max-width: 680px) {
-  .brand-mark img { width: 142px; }
+  .brand-mark img { width: 110px; }
 }
 /* ===========================================================================
    Rhythm pass. Successive edits had left every section on its own spacing and
@@ -555,10 +561,389 @@ html.js .reveal-4 { transition-delay: .39s; }
 /* The intro grid was authored as three columns: a section-index gutter, the
    heading, then the copy. The index is gone (its number moved into the eyebrow,
    matching every other section), so the grid is two columns now - without this
-   the heading inherits the narrow gutter column and wraps a word per line. */
-.intro { grid-template-columns: 57% 43%; }
+   the heading inherits the narrow gutter column and wraps a word per line.
+
+   The serum photograph now takes the right-hand column, so the heading and the
+   copy stack in the left one. That keeps the eyebrow on the left margin, in line
+   with every other section, and gives the heading a wider measure than before. */
+.intro {
+  grid-template-columns: minmax(0, 1fr) 44%;
+  /* Row two takes the slack when the photo column runs deeper than the text, so
+     the two never drift apart and the rule below always sits under both. */
+  grid-template-rows: auto 1fr auto;
+  column-gap: 72px;
+  align-items: start;
+  padding-bottom: 75px;
+  /* The recovered 545px min-height set this section's rhythm before padding did.
+     Left in, it feeds slack to the 1fr row at middling widths and opens a gap
+     above the rule. */
+  min-height: auto;
+}
+.intro-heading { grid-column: 1; }
+.intro-copy {
+  grid-column: 1;
+  /* The recovered rule bottom-aligned the copy against the heading column it used
+     to sit beside. Stacked under the heading, it has to start at the top. */
+  align-self: start;
+  max-width: 470px;
+  margin-top: 34px;
+  padding-bottom: 0;
+}
+
+/* One hairline runs the whole width of the section, under both columns, and the
+   link sits on it. */
+.intro-foot {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  border-top: 1px solid #c5dbdf;
+  margin: 46px 0 0;
+  padding-top: 12px;
+}
+
+/* The photograph runs the full width of its column. */
+.intro-object {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 100%;
+  margin: 0;
+}
+.intro-object img {
+  width: 100%;
+  height: auto;
+}
+
+/* The lockup PNG carried 11.3% transparent padding on each side, which pushed
+   the footer logo about 15px to the right of the tagline beneath it. The white
+   copy is now cropped to the artwork, so this width keeps it the size it was.
+   (The teal copy in the header still has its padding, and its own left margin
+   is set by a wider shell, so it is left alone.) */
+.brand-mark-light img { width: 106px; }
+
+/* The marquee shifts by 25% of the track, which has to equal one of its four
+   passes. It does not quite: there is a gap between every pair of items but
+   none after the last, so the track is one gap short of four whole passes and
+   the loop jumped ~9px on every restart. A trailing pad of one gap squares it. */
+.marquee-track { padding-right: 34px; }
+@media (max-width: 680px) {
+  .marquee-track { padding-right: 20px; }
+}
+
+/* The header ran on a 1360px shell while the content runs on 1220px, so above
+   ~1316px the logo sat 62px outside the column everything below it lines up to.
+   One shell width for both puts the mark on the content margin. */
+.header-inner { width: min(1220px, 100% - 96px); }
+
+/* ===========================================================================
+   Category ribbon.
+
+   Whitening, Devices, Toothpaste and All products drop a full-width band under
+   the header listing what is inside them. No JavaScript: the band is shown by
+   :hover for pointers and :focus-within for keyboards, which means it also
+   works before script.js has run.
+   =========================================================================== */
+.main-nav {
+  /* The nav has to fill the header's height, so the item a pointer is on stays
+     hovered all the way down to the band. Without this the nav is only as tall
+     as its text and the band closes in the gap. */
+  align-self: stretch;
+  align-items: center;
+}
+.nav-item {
+  /* Positioned, so the panel hangs off the item rather than the header - and
+     stretched to the header's height, so top:100% still lands on the header's
+     bottom edge and the pointer keeps the item hovered on the way down. */
+  align-self: stretch;
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+.nav-ribbon {
+  visibility: hidden;
+  opacity: 0;
+  z-index: 1;
+  /* Sized to its longest line, never narrower than the nav item above it. */
+  width: max-content;
+  min-width: 100%;
+  max-width: 340px;
+  background: var(--paper);
+  border: 1px solid #cbdde0;
+  padding: 14px 18px 12px;
+  transition: opacity .18s, visibility .18s;
+  position: absolute;
+  top: 100%;
+  left: -18px;
+  box-shadow: 0 14px 26px #26474b1f;
+}
+/* The last group sits near the right edge, so it opens leftwards. */
+.nav-item-end .nav-ribbon { left: auto; right: -18px; }
+.nav-item:hover .nav-ribbon,
+.nav-item:focus-within .nav-ribbon {
+  visibility: visible;
+  opacity: 1;
+}
+/* One link per line: the panel is only as wide as its longest entry. */
+.nav-ribbon-list {
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+}
+.nav-ribbon-list a {
+  color: var(--ink);
+  padding: 4px 0;
+  font-size: 12px;
+  font-weight: 700;
+  display: block;
+}
+.nav-ribbon-list a:hover { color: var(--violet); }
+.nav-ribbon-all {
+  color: var(--violet);
+  border-top: 1px solid #cbdde0;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+  padding-top: 11px;
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+}
+
+/* The anchored card would otherwise sit under the sticky header. */
+.product-card { scroll-margin-top: 105px; }
+
+/* ===========================================================================
+   Enquiry modal.
+   The design system styled the dialog, the form and the success state but the
+   markup was missing, so these are only the gaps it left.
+   =========================================================================== */
+
+/* .modal-backdrop sets display:grid, which outranks the UA rule for [hidden].
+   Without this the dialog is open on every page load. */
+.modal-backdrop[hidden] { display: none; }
+
+/* The system styled input and select but never a textarea. */
+.enquiry-form textarea {
+  color: var(--ink);
+  font: 13px var(--app-font-sans);
+  text-transform: none;
+  background: 0 0;
+  border: 0;
+  border-bottom: 1px solid #b7c6c8;
+  outline: 0;
+  padding: 8px 0;
+  resize: vertical;
+}
+.enquiry-form textarea:focus { border-color: var(--violet); }
+.enquiry-form select { appearance: none; border-radius: 0; }
+.form-error {
+  color: #a3402f;
+  font: 10px/1.5 var(--app-font-mono);
+  margin: 0;
+}
+.enquiry-modal .eyebrow { margin-bottom: 14px; }
+.enquiry-modal h2 {
+  line-height: .95;
+  /* The -.09em brand tracking closes the gap in "Ask us" at this size, and it
+     reads as one word. Buy the space back without loosening the letters. */
+  word-spacing: .12em;
+}
+.success-state .modal-copy { margin-left: auto; margin-right: auto; }
+
+/* The dialog is taller than a laptop viewport once the browser chrome is off.
+   A centred grid item with nowhere to go gets clipped at the top and cannot be
+   scrolled back to, so the backdrop scrolls and centring gives way when it must. */
+.modal-backdrop {
+  align-items: safe center;
+  overflow-y: auto;
+}
+@media (max-height: 760px) {
+  .enquiry-modal { padding-top: 36px; padding-bottom: 32px; }
+  .enquiry-modal h2 { font-size: 42px; }
+  .modal-copy { margin: 18px 0 24px; }
+}
+
 @media (max-width: 900px) {
-  .intro { grid-template-columns: 55% 45%; }
+  /* Six nav items and the button no longer fit the 700px shell here. The nav is
+     the more useful of the two; "Ask us a question" is still in the contact
+     section and the footer, and returns with the menu below 680. */
+  .header-cta { display: none; }
+  .main-nav { gap: 22px; margin-right: 0; }
+}
+
+@media (max-width: 680px) {
+  /* In the stacked menu there is no panel to drop: each group's links sit under
+     their heading, always open, indented one step.
+     align-items:center centres the desktop row; here the same property would
+     centre every link across the menu. */
+  .main-nav { align-self: auto; align-items: stretch; }
+  .nav-item { flex-direction: column; align-items: stretch; }
+  .nav-ribbon,
+  .nav-item-end .nav-ribbon {
+    visibility: visible;
+    opacity: 1;
+    background: 0 0;
+    border: 0;
+    width: auto;
+    max-width: none;
+    padding: 0 0 6px 14px;
+    position: static;
+    box-shadow: none;
+  }
+  .nav-ribbon-list { gap: 0; margin: 0; flex-direction: column; }
+  .nav-ribbon-list a { padding: 8px 0; font-size: 13px; font-weight: 500; }
+  .nav-ribbon-all { border: 0; padding: 8px 0 4px; }
+  .product-card { scroll-margin-top: 88px; }
+}
+
+/* The recovered mobile rule hid the last child of .hero-bottom to drop the
+   "A Pharmascient brand" label. That label is gone from the markup, so the rule
+   itself is now the last child - and would disappear below 680 without this. */
+.hero-bottom span.hero-rule { display: block; }
+
+/* ===========================================================================
+   The range grid on a phone.
+
+   Two columns on a 390px screen left each card 172px wide, which put the
+   description in a 110px box at 8px - unreadable, and the arrow crushed against
+   the title. One product per row, turned on its side: the picture takes a fixed
+   124px and the words get everything else. It is also no taller overall, since
+   nineteen short rows beat ten tall ones.
+   =========================================================================== */
+/* ===========================================================================
+   Product zoom.
+   The round arrow on every card used to open a mailto: for that one product -
+   nineteen ways to compose the same email. It opens the photograph instead.
+   =========================================================================== */
+.zoom-backdrop {
+  z-index: 60;
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
+  background: #26474bdb;
+  place-items: center;
+  padding: 24px;
+  animation: .2s fadeIn;
+  display: grid;
+  position: fixed;
+  inset: 0;
+}
+/* place-items on the backdrop outranks the UA rule for [hidden]. */
+.zoom-backdrop[hidden] { display: none; }
+.zoom-figure {
+  max-width: min(760px, 100%);
+  margin: 0;
+  animation: .3s rise;
+}
+.zoom-figure img {
+  background: var(--paper);
+  width: 100%;
+  max-height: 74vh;
+  object-fit: contain;
+  display: block;
+}
+/* Picker for products that have more than one picture; absent when they do not. */
+.zoom-thumbs {
+  /* Colour variants can run to five or more shots, so the picker scrolls on one
+     line rather than wrapping. "safe center" keeps it centred when it fits and
+     falls back to flush-start when it overflows, so the first thumb stays
+     reachable. */
+  justify-content: safe center;
+  flex-wrap: nowrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-bottom: 4px;
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.zoom-thumb { flex: 0 0 auto; }
+.zoom-thumbs[hidden] { display: none; }
+.zoom-thumb {
+  cursor: pointer;
+  background: var(--paper);
+  border: 1px solid #ffffff40;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  transition: border-color .2s, opacity .2s;
+  opacity: .55;
+}
+.zoom-thumb img { width: 100%; height: 100%; object-fit: contain; }
+.zoom-thumb:hover { opacity: .85; }
+.zoom-thumb.is-current { border-color: var(--coral); opacity: 1; }
+
+.zoom-figure figcaption {
+  color: #cfe0e2;
+  text-align: center;
+  margin-top: 16px;
+  font: 500 10px var(--app-font-mono);
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.zoom-close {
+  color: var(--paper);
+  position: absolute;
+  top: 18px;
+  right: 18px;
+}
+
+/* Two columns still, but the recovered rule pins the description to a 110px box
+   at 8px whatever the card width - on a 600-680px screen that is a third of the
+   card left unused and type too small to read. */
+@media (max-width: 680px) {
+  .product-card-info p { max-width: none; font-size: 9.5px; line-height: 1.4; }
+}
+
+@media (max-width: 600px) {
+  .product-grid { grid-template-columns: 1fr; gap: 10px; }
+
+  .product-card {
+    grid-template-columns: 124px minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    display: grid;
+  }
+  .product-card .product-visual {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    height: 100%;
+    min-height: 152px;
+  }
+  .official-product-image { width: 92%; height: 88%; }
+  .visual-shadow { width: 74px; height: 14px; bottom: 12px; }
+
+  .product-card-top {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 13px 14px 0;
+  }
+  .product-card-info {
+    /* The rule between picture and text made sense stacked; side by side it cuts
+       the text block in half. */
+    border-top: 0;
+    grid-column: 2;
+    grid-row: 2;
+    align-items: center;
+    gap: 12px;
+    padding: 6px 14px 14px;
+  }
+  /* A flex item's floor is its content, so without this the description pushes
+     the arrow off the card and runs under the edge instead of wrapping. */
+  .product-card-info > div { min-width: 0; }
+  .product-card-info h3 { margin-bottom: 5px; font-size: 15px; }
+  .product-card-info p { max-width: none; font-size: 10.5px; line-height: 1.45; }
+  .round-arrow { flex: none; width: 30px; height: 30px; }
+}
+
+@media (max-width: 900px) {
+  .intro { grid-template-columns: minmax(0, 1fr) 42%; column-gap: 44px; }
+}
+@media (max-width: 680px) {
+  /* The recovered rule drops .intro back to display:block below 680, so the
+     stack is already vertical - the column widths just have to let go and the
+     photo runs full width under the copy. */
+  .intro-copy { max-width: 100%; margin-top: 28px; }
+  .intro-object { width: 100%; margin-top: 40px; }
+  .intro-foot { margin-top: 40px; }
 }
 /* Cards in a row are equal height, but a title that wraps to two lines pushed
    its card's CTA ~23px below its neighbour's. Pin the CTA to the bottom so the
@@ -603,3 +988,191 @@ html.js .reveal-4 { transition-delay: .39s; }
   .range-cta-inner { grid-template-columns: 1fr; }
   .range-cta-figure { max-width: 100%; }
 }
+/* ===========================================================================
+   Product pages.
+   One page per product, so a search for a single item has somewhere to land.
+   =========================================================================== */
+.product-page {
+  grid-template-columns: 44% minmax(0, 1fr);
+  column-gap: 64px;
+  align-items: start;
+  padding: 8px 0 96px;
+  display: grid;
+}
+.product-figure {
+  place-items: center;
+  min-height: 420px;
+  margin: 0;
+  padding: 32px;
+  display: grid;
+}
+.product-figure .official-product-image {
+  width: 78%;
+  height: auto;
+  filter: drop-shadow(0 18px 14px #26474b29);
+}
+.product-detail h1 {
+  font: 800 clamp(38px, 4.2vw, 54px)/1 var(--app-font-sans);
+  letter-spacing: -.055em;
+  margin: 0 0 20px;
+}
+.product-lede {
+  color: #5f7477;
+  max-width: 460px;
+  margin: 0 0 26px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+.product-specs {
+  border-top: 1px solid #c5d0d2;
+  max-width: 460px;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+}
+.product-specs li {
+  color: #5f7477;
+  border-bottom: 1px solid #c5d0d2;
+  padding: 12px 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+/* The other pictures of this product, when there are any. */
+.product-more {
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 28px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+}
+.product-more li {
+  background: var(--lavender);
+  width: 84px;
+  height: 84px;
+  padding: 6px;
+}
+.product-more img { width: 100%; height: 100%; object-fit: contain; }
+.product-back { margin: 22px 0 0; }
+
+/* Siblings in the same category - the internal links that make the set
+   crawlable rather than nineteen dead ends. */
+.related { border-top: 1px solid #c5dbdf; padding: 56px 0 96px; }
+.related-head {
+  font: 500 10px var(--app-font-mono);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--violet);
+  margin: 0 0 26px;
+}
+.related-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  display: grid;
+}
+.related-card {
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform .25s;
+  display: block;
+}
+.related-card:hover { transform: translateY(-4px); }
+.related-media {
+  place-items: center;
+  height: 190px;
+  padding: 18px;
+  display: grid;
+}
+.related-media img { width: 62%; height: auto; }
+.related-name {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .product-page { grid-template-columns: 1fr; gap: 34px; padding-bottom: 66px; }
+  .product-figure { min-height: 300px; }
+  .related { padding: 44px 0 66px; }
+}
+@media (max-width: 600px) {
+  .product-figure { min-height: 240px; padding: 20px; }
+  .related-grid { grid-template-columns: 1fr; gap: 10px; }
+  .related-card { grid-template-columns: 124px minmax(0, 1fr); align-items: center; gap: 14px; display: grid; }
+  .related-media { height: 116px; padding: 12px; }
+  .related-name { margin: 0; }
+}
+
+/* ===========================================================================
+   Reviews, quoted from the product's Amazon.ae listing.
+   Stars carry the brand teal rather than the usual marketplace gold, and there
+   is no verified badge - see the note in _reviews.py for why.
+   =========================================================================== */
+.reviews { border-top: 1px solid #c5dbdf; padding: 56px 0 8px; }
+.reviews-head {
+  font: 500 10px var(--app-font-mono);
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--violet);
+  margin: 0 0 26px;
+}
+.review-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+}
+.review {
+  background: var(--paper);
+  border: 1px solid #cbdde0;
+  padding: 22px 24px 24px;
+}
+.review-head {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 0 0 4px;
+  display: flex;
+}
+.review-name { font-size: 14px; font-weight: 800; }
+.review-stars {
+  color: var(--violet);
+  align-items: center;
+  gap: 2px;
+  display: inline-flex;
+}
+.review-source {
+  font: 500 9px var(--app-font-mono);
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: #8aa0a3;
+  margin: 0 0 14px;
+}
+.review-title { margin: 0 0 6px; font-size: 14px; font-weight: 700; }
+.review-body { color: #5f7477; margin: 0; font-size: 13px; line-height: 1.65; }
+.reviews-note {
+  color: #8aa0a3;
+  border-top: 1px solid #c5dbdf;
+  margin: 26px 0 0;
+  padding-top: 14px;
+  font: 10px/1.6 var(--app-font-mono);
+}
+
+@media (max-width: 680px) {
+  .reviews { padding-top: 44px; }
+  .review-grid { grid-template-columns: 1fr; gap: 10px; }
+  .review { padding: 18px 18px 20px; }
+}
+
+/* --- Colour variants -------------------------------------------------------
+   Only the two products that come in more than one handle colour carry this,
+   so it reads as a real affordance rather than a decoration on every page. */
+.product-colours {
+  margin-top: 18px;
+  text-align: center;
+}
+.product-colours .text-link { font-size: 10px; }
